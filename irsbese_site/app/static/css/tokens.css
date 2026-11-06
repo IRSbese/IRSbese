@@ -1,0 +1,13 @@
+/* ЧАСТЬ 6. Дизайн-токены по брендбуку IRSbese. */
+:root {
+    --graphite: #0E0F12;
+    --coral: #FF7A3D;
+    --sand: #E8E1D8;
+    --background: #FAFAF8;
+    --gray: #9CA3AF;
+    --olive: #6B7F6B;
+    --text: var(--graphite);
+    --radius: 14px;
+    --radius-large: 24px;
+    --content-width: 1180px;
+}

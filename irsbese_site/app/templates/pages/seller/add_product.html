@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Добавить товар — IRSbese{% endblock %}
+{% block content %}
+<section class="section narrow"><h1>Новый товар</h1><form class="panel form-panel"><label>Название<input type="text" placeholder="Название товара"></label><label>Категория<input type="text" placeholder="Категория"></label><label>Цена, ₽<input type="number" min="0" placeholder="0"></label><label>Описание<textarea rows="4" placeholder="Описание товара"></textarea></label><label>Фотография<input type="file" accept="image/*"></label><button class="button" type="button">Сохранить товар</button><p class="muted small">Форма интерфейса. Сохранение и загрузка фото пока не подключены.</p></form></section>
+{% endblock %}

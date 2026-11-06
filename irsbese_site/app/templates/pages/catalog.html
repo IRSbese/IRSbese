@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Каталог — IRSbese{% endblock %}
+{% block content %}
+<section class="section">
+    <span class="eyebrow">IRSBESE / КАТАЛОГ</span><h1>Каталог товаров</h1>
+    <form class="search-form catalog-search" action="{{ url_for('catalog.catalog') }}"><input type="search" name="q" value="{{ search }}" placeholder="Название или категория"><button class="button">Найти</button></form>
+    <div class="product-grid">
+        {% for product in products %}{% include "partials/product_card.html" %}{% else %}<p>Ничего не найдено. Попробуйте изменить запрос.</p>{% endfor %}
+    </div>
+</section>
+{% endblock %}

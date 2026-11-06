@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Корзина — IRSbese{% endblock %}
+{% block content %}
+<section class="section narrow"><span class="eyebrow">IRSBESE / ПОКУПКИ</span><h1>Корзина</h1><div class="empty-state"><h2>Пока здесь пусто</h2><p>Добавьте товары из каталога, чтобы перейти к оформлению заказа.</p><a class="button" href="{{ url_for('catalog.catalog') }}">Перейти в каталог</a></div></section>
+{% endblock %}

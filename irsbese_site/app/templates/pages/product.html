@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — IRSbese{% endblock %}
+{% block content %}
+<section class="product-detail">
+    <div class="product-picture product-picture-large">{% if product.image %}<img src="{{ product.image }}" alt="{{ product.name }}">{% else %}<span>Фото товара</span>{% endif %}</div>
+    <div><span class="eyebrow">{{ product.category }}</span><h1>{{ product.name }}</h1><p>{{ product.description }}</p><strong class="price detail-price">{{ product.price }} ₽</strong><a class="button" href="{{ url_for('cart.cart') }}">Добавить в корзину</a></div>
+</section>
+{% endblock %}

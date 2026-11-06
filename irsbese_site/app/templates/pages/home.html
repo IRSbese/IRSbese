@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}IRSbese — главная{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <span class="eyebrow">МАРКЕТПЛЕЙС ДЛЯ ПОКУПАТЕЛЕЙ И ПРОДАВЦОВ</span>
+        <h1>Всё нужное<br>в одном месте.</h1>
+        <p>Находите товары, сравнивайте предложения и открывайте возможности для своего бизнеса.</p>
+        <form class="search-form" action="{{ url_for('catalog.catalog') }}">
+            <input type="search" name="q" placeholder="Что вы ищете?">
+            <button class="button" type="submit">Найти</button>
+        </form>
+        <div class="hero-actions">
+            <a class="button" href="{{ url_for('catalog.catalog') }}">Покупаю</a>
+            <a class="button button-light" href="{{ url_for('seller.seller') }}">Продаю</a>
+        </div>
+    </div>
+    <div class="hero-art"><span>IRS</span><small>FIND WHAT YOU NEED</small></div>
+</section>
+<section class="section">
+    <div class="section-heading"><div><span class="eyebrow">ВЫБИРАЙТЕ</span><h2>Популярные товары</h2></div><a class="text-link" href="{{ url_for('catalog.catalog') }}">Весь каталог →</a></div>
+    <div class="product-grid">
+        {% for product in products %}{% include "partials/product_card.html" %}{% endfor %}
+    </div>
+</section>
+<section class="seller-banner">
+    <div><span class="eyebrow">ДЛЯ БИЗНЕСА</span><h2>Ваши товары —<br>новым покупателям.</h2><p>Размещайте предложения и развивайте продажи.</p></div>
+    <a class="button button-dark" href="{{ url_for('seller.seller') }}">Стать продавцом</a>
+</section>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — IRSbese{% endblock %}
+{% block content %}
+<section class="section narrow"><span class="eyebrow">IRSBESE / АККАУНТ</span><h1>Личный кабинет</h1><div class="panel"><p>Войдите или создайте аккаунт, чтобы просматривать историю заказов.</p><div class="hero-actions"><a class="button" href="{{ url_for('account.login') }}">Войти</a><a class="button button-light" href="{{ url_for('account.register') }}">Регистрация</a></div></div></section>
+{% endblock %}

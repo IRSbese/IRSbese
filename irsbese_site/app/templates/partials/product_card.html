@@ -1,0 +1,10 @@
+<article class="product-card">
+    <a class="product-picture" href="{{ url_for('product.product_page', product_id=product.id) }}">
+        {% if product.image %}<img src="{{ product.image }}" alt="{{ product.name }}">{% else %}<span>Фото товара</span>{% endif %}
+    </a>
+    <div class="product-info">
+        <span class="muted small">{{ product.category }}</span>
+        <a class="product-name" href="{{ url_for('product.product_page', product_id=product.id) }}">{{ product.name }}</a>
+        <strong class="price">{{ product.price }} ₽</strong>
+    </div>
+</article>
