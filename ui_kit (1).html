@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI-Кит</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --graphite:#0E0F12;
+  --coral:#FF7A3D;
+  --coral-hover:#E86C30;
+  --coral-active:#C95C28;
+  --sand:#E8E1D8;
+  --sand-soft:#F3EEE7;
+  --light:#FAFAF8;
+  --gray:#9CA3AF;
+  --olive:#6B7F6B;
+  --olive-soft:#EEF2EE;
+  --white:#FFFFFF;
+  --border:#E7E5E0;
+  --radius-s:8px; --radius-m:14px; --radius-l:20px;
+  --shadow-s:0 2px 8px rgba(14,15,18,.05);
+  --shadow-m:0 8px 24px rgba(14,15,18,.08);
+  --shadow-l:0 16px 40px rgba(14,15,18,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--light);color:var(--graphite);line-height:1.5;padding:48px 24px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:40px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:28px;font-weight:700;letter-spacing:-.01em;margin:64px 0 8px;padding-top:24px;border-top:1px solid var(--border)}
+.h-sub{color:var(--gray);font-size:16px;margin-bottom:28px}
+.h3{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gray);margin:32px 0 14px}
+
+/* SWATCHES */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+.swatch{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-m);overflow:hidden;box-shadow:var(--shadow-s)}
+.swatch .chip{height:84px}
+.swatch .info{padding:12px 14px}
+.swatch .name{font-weight:600;font-size:14px}
+.swatch .hex{font-size:12px;color:var(--gray);font-family:ui-monospace,monospace}
+
+/* TYPO */
+.type-row{display:flex;align-items:baseline;gap:24px;padding:14px 0;border-bottom:1px solid var(--border)}
+.type-row .label{width:170px;flex-shrink:0;font-size:12px;color:var(--gray);font-family:ui-monospace,monospace}
+.t-h1{font-size:40px;font-weight:800;letter-spacing:-.02em}
+.t-h2{font-size:28px;font-weight:700}
+.t-h3{font-size:20px;font-weight:600}
+.t-body{font-size:16px}
+.t-body2{font-size:14px;color:#4B5563}
+.t-cap{font-size:12px;color:var(--gray)}
+
+/* BUTTONS */
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;font-family:inherit;font-weight:600;border-radius:999px;transition:all .15s ease;font-size:15px;padding:0 24px;height:48px}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-primary{background:var(--coral);color:var(--white);box-shadow:0 4px 14px rgba(255,122,61,.35)}
+.btn-primary:hover{background:var(--coral-hover)}
+.btn-primary:active{background:var(--coral-active);box-shadow:none}
+.btn-secondary{background:transparent;color:var(--graphite);border:1.5px solid var(--graphite)}
+.btn-secondary:hover{background:var(--graphite);color:var(--white)}
+.btn-ghost{background:transparent;color:var(--coral)}
+.btn-ghost:hover{background:var(--sand-soft)}
+.btn-dark{background:var(--graphite);color:var(--white)}
+.btn-dark:hover{background:#22242B}
+.btn:disabled,.btn.disabled{background:var(--sand);color:var(--gray);box-shadow:none;cursor:not-allowed;transform:none;border:none}
+.btn-ghost.disabled{background:transparent;color:var(--gray)}
+.btn-sm{height:36px;font-size:13px;padding:0 18px}
+.btn-lg{height:56px;font-size:17px;padding:0 32px}
+
+/* INPUTS */
+.field{max-width:360px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}
+.input{width:100%;height:48px;padding:0 16px;font-family:inherit;font-size:15px;color:var(--graphite);background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-s);outline:none;transition:all .15s}
+.input::placeholder{color:var(--gray)}
+.input:focus{border-color:var(--coral);box-shadow:0 0 0 4px rgba(255,122,61,.15)}
+.input:disabled{background:var(--sand-soft);color:var(--gray)}
+.input.error{border-color:#E5484D;box-shadow:0 0 0 4px rgba(229,72,77,.12)}
+.field .hint{font-size:12px;margin-top:6px;color:var(--gray)}
+.field .hint.err{color:#E5484D}
+.field .hint.ok{color:var(--olive)}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-l);padding:28px;box-shadow:var(--shadow-s);transition:all .2s ease;display:flex;flex-direction:column;gap:12px}
+.card:hover{box-shadow:var(--shadow-m);transform:translateY(-2px)}
+.card .tag{align-self:flex-start;background:var(--sand-soft);color:var(--graphite);font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px}
+.card .tag.olive{background:var(--olive-soft);color:var(--olive)}
+.card h3{font-size:20px;font-weight:700}
+.card p{font-size:14px;color:#4B5563;flex-grow:1}
+.card .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.card .price{font-size:22px;font-weight:800}
+.card .price small{font-size:13px;color:var(--gray);font-weight:500}
+.card-media{height:140px;border-radius:var(--radius-m);background:linear-gradient(135deg,var(--sand) 0%,var(--coral) 130%);margin:-6px -6px 6px}
+.card-media.olive{background:linear-gradient(135deg,var(--sand) 0%,var(--olive) 130%)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px}
+.badge .dot{width:8px;height:8px;border-radius:50%}
+.b-coral{background:rgba(255,122,61,.12);color:var(--coral)}
+.b-coral .dot{background:var(--coral)}
+.b-olive{background:var(--olive-soft);color:var(--olive)}
+.b-olive .dot{background:var(--olive)}
+.b-gray{background:var(--sand-soft);color:#6B7280}
+.b-gray .dot{background:var(--gray)}
+.b-graphite{background:var(--graphite);color:var(--white)}
+
+/* ALERTS */
+.alerts{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.alert{display:flex;gap:12px;padding:14px 18px;border-radius:var(--radius-m);font-size:14px;align-items:flex-start}
+.alert strong{display:block;font-size:14px;margin-bottom:2px}
+.a-info{background:var(--sand-soft);color:var(--graphite)}
+.a-ok{background:var(--olive-soft);color:#4C5E4C}
+.a-warn{background:rgba(255,122,61,.1);color:#8A4218}
+.a-err{background:rgba(229,72,77,.08);color:#8F2F33}
+
+/* NAV */
+.nav{display:flex;justify-content:space-between;align-items:center;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-l);padding:14px 24px;box-shadow:var(--shadow-s)}
+.nav .logo{font-weight:800;font-size:18px}
+.nav .logo span{color:var(--coral)}
+.nav .links{display:flex;gap:28px}
+.nav .links a{color:#4B5563;text-decoration:none;font-size:14px;font-weight:500}
+.nav .links a:hover{color:var(--coral)}
+
+.hero{background:var(--graphite);color:var(--white);border-radius:28px;padding:56px 48px;display:flex;justify-content:space-between;align-items:center;gap:32px;flex-wrap:wrap}
+.hero h2{border:none;margin:0;padding:0;color:var(--white);font-size:32px;max-width:520px}
+.hero p{color:var(--gray);margin-top:10px;max-width:460px}
+.footer-note{margin-top:64px;text-align:center;color:var(--gray);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>UI-Кит</h1>
+<p class="h-sub">Палитра, типографика и компоненты. Шрифт — Inter.</p>
+
+<div class="nav">
+  <div class="logo">ui<span>kit</span></div>
+  <div class="links"><a href="#">Каталог</a><a href="#">О нас</a><a href="#">Контакты</a></div>
+  <button class="btn btn-primary btn-sm">Войти</button>
+</div>
+
+<h2>Цвета</h2>
+<p class="h-sub">Основная палитра брендбука.</p>
+<div class="swatches">
+  <div class="swatch"><div class="chip" style="background:#0E0F12"></div><div class="info"><div class="name">Графитовый</div><div class="hex">#0E0F12</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#FF7A3D"></div><div class="info"><div class="name">Коралловый</div><div class="hex">#FF7A3D</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#E8E1D8"></div><div class="info"><div class="name">Песочный</div><div class="hex">#E8E1D8</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#FAFAF8;border-bottom:1px solid #E7E5E0"></div><div class="info"><div class="name">Светлый</div><div class="hex">#FAFAF8</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#9CA3AF"></div><div class="info"><div class="name">Серый</div><div class="hex">#9CA3AF</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#6B7F6B"></div><div class="info"><div class="name">Оливковый</div><div class="hex">#6B7F6B</div></div></div>
+</div>
+
+<h2>Типографика</h2>
+<p class="h-sub">Inter, шкала от заголовка до подписи.</p>
+<div class="type-row"><span class="label">H1 / 40 / 800</span><span class="t-h1">Заголовок страницы</span></div>
+<div class="type-row"><span class="label">H2 / 28 / 700</span><span class="t-h2">Заголовок раздела</span></div>
+<div class="type-row"><span class="label">H3 / 20 / 600</span><span class="t-h3">Заголовок карточки</span></div>
+<div class="type-row"><span class="label">Body / 16 / 400</span><span class="t-body">Основной текст — читается легко и не утомляет глаз.</span></div>
+<div class="type-row"><span class="label">Body-2 / 14</span><span class="t-body2">Второстепенный текст, описания и пояснения.</span></div>
+<div class="type-row"><span class="label">Caption / 12</span><span class="t-cap">Подписи, метки, вспомогательная информация</span></div>
+
+<h2>Кнопки</h2>
+<p class="h-sub">Primary — коралл, secondary — графит, ghost — акцент без фона.</p>
+<div class="h3">Базовые</div>
+<div class="row">
+  <button class="btn btn-primary">Primary</button>
+  <button class="btn btn-secondary">Secondary</button>
+  <button class="btn btn-ghost">Ghost</button>
+  <button class="btn btn-dark">Тёмная</button>
+  <button class="btn btn-primary disabled">Disabled</button>
+</div>
+<div class="h3">Размеры</div>
+<div class="row">
+  <button class="btn btn-primary btn-lg">Большая</button>
+  <button class="btn btn-primary">Средняя</button>
+  <button class="btn btn-primary btn-sm">Маленькая</button>
+</div>
+
+<h2>Поля ввода</h2>
+<p class="h-sub">Фокус подсвечивается кораллом.</p>
+<div class="field" style="margin-bottom:20px">
+  <label>Имя</label>
+  <input class="input" placeholder="Иван Иванов">
+  <div class="hint">Обычное поле</div>
+</div>
+<div class="field" style="margin-bottom:20px">
+  <label>Email</label>
+  <input class="input error" value="не-email">
+  <div class="hint err">Проверьте формат адреса</div>
+</div>
+<div class="field">
+  <label>Промокод</label>
+  <input class="input" value="CORAL2026">
+  <div class="hint ok">Промокод применён</div>
+</div>
+
+<h2>Карточки</h2>
+<p class="h-sub">Радиус 20, мягкая тень, подъём при наведении.</p>
+<div class="cards">
+  <div class="card">
+    <div class="card-media"></div>
+    <span class="tag">Хит</span>
+    <h3>Карточка с обложкой</h3>
+    <p>Короткое описание продукта или услуги в две строки.</p>
+    <div class="foot"><span class="price">2 490 <small>₽</small></span><button class="btn btn-primary btn-sm">В корзину</button></div>
+  </div>
+  <div class="card">
+    <span class="tag olive">Новинка</span>
+    <h3>Текстовая карточка</h3>
+    <p>Без обложки — для статей, услуг или записей. Коралловая кнопка в футере ведёт к действию.</p>
+    <div class="foot"><span class="price">990 <small>₽/мес</small></span><button class="btn btn-secondary btn-sm">Подробнее</button></div>
+  </div>
+</div>
+
+<h2>Бейджи</h2>
+<div class="row" style="margin-top:8px">
+  <span class="badge b-coral"><span class="dot"></span>Акция</span>
+  <span class="badge b-olive"><span class="dot"></span>В наличии</span>
+  <span class="badge b-gray"><span class="dot"></span>Ожидается</span>
+  <span class="badge b-graphite">−20%</span>
+</div>
+
+<h2>Уведомления</h2>
+<div class="alerts" style="margin-top:8px">
+  <div class="alert a-info"><strong>Информация</strong>Ваш заказ собирается, мы сообщим об отправке.</div>
+  <div class="alert a-ok"><strong>Готово</strong>Изменения сохранены успешно.</div>
+  <div class="alert a-warn"><strong>Внимание</strong>Сессия скоро истечёт — сохраните черновик.</div>
+  <div class="alert a-err"><strong>Ошибка</strong>Не удалось отправить форму. Проверьте поля.</div>
+</div>
+
+<div class="hero" style="margin-top:64px">
+  <div>
+    <h2>Коралл работает только на действии</h2>
+    <p>Оставьте его кнопкам и статусам — остальному достанется графит, песок и оливковый.</p>
+  </div>
+  <button class="btn btn-primary btn-lg">Начать</button>
+</div>
+
+<p class="footer-note">UI-Кит · графит #0E0F12 · коралл #FF7A3D · песок #E8E1D8 · светлый #FAFAF8 · серый #9CA3AF · оливковый #6B7F6B</p>
+
+</div>
+</body>
+</html>
