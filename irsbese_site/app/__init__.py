@@ -14,6 +14,7 @@ def create_app():
     from app.routes.cart import cart_bp
     from app.routes.account import account_bp
     from app.routes.seller import seller_bp
+    from app.routes.auth import auth_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(catalog_bp)
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(cart_bp)
     app.register_blueprint(account_bp)
     app.register_blueprint(seller_bp)
+    app.register_blueprint(auth_bp)
 
     # Общие страницы ошибок.
     @app.errorhandler(404)

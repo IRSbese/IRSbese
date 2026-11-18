@@ -7,7 +7,15 @@ CREATE TABLE IF NOT EXISTS products (
     image TEXT NOT NULL DEFAULT ''
 );
 
-INSERT INTO products (id, name, category, price, description, image)
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT OR IGNORE INTO products (id, name, category, price, description, image)
 VALUES
     (1, 'Наушники беспроводные', 'Электроника', 3490,
      'Беспроводные наушники для повседневного использования.', ''),
