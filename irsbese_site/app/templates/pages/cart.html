@@ -1,5 +1,76 @@
 {% extends "base.html" %}
 {% block title %}Корзина — IRSbese{% endblock %}
 {% block content %}
-<section class="section narrow"><span class="eyebrow">IRSBESE / ПОКУПКИ</span><h1>Корзина</h1><div class="empty-state"><h2>Пока здесь пусто</h2><p>Добавьте товары из каталога, чтобы перейти к оформлению заказа.</p><a class="button" href="{{ url_for('catalog.catalog') }}">Перейти в каталог</a></div></section>
+<section class="section">
+    <h1 style="margin-bottom: 30px;">Корзина ({{ items|length }})</h1>
+
+    {% if items %}
+        <!-- Сетка: 2 колонки -->
+        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px; align-items: start;">
+            
+            <!-- ЛЕВАЯ КОЛОНКА: ТОВАРЫ -->
+            <div class="cart-list" style="display: flex; flex-direction: column; gap: 15px;">
+                {% for item in items %}
+                    <div class="cart-item" style="display: flex; gap: 20px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); align-items: center;">
+                        
+                        <!-- Фото товара -->
+                        <div style="width: 100px; height: 100px; background: #f5f5f5; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            {% if item.image %}
+                                <img src="{{ item.image }}" alt="{{ item.name }}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            {% else %}
+                                <span style="color: #999; font-size: 12px;">Фото</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Информация -->
+                        <div style="flex-grow: 1;">
+                            <h3 style="margin: 0 0 5px 0; font-size: 18px;">
+                                <a href="{{ url_for('product.product_page', product_id=item.product_id) }}" style="text-decoration: none; color: #000;">{{ item.name }}</a>
+                            </h3>
+                            <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 18px; font-weight: bold;">{{ item.price }} ₽</span>
+                            </div>
+                        </div>
+
+                        <!-- Управление количеством и удаление -->
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                            <!-- Кнопка удаления -->
+                            <a href="{{ url_for('cart.remove', cart_id=item.cart_id) }}" style="color: #999; text-decoration: none; font-size: 20px;" title="Удалить">🗑️</a>
+                            
+                            <!-- Переключатель + и - -->
+                            <div style="display: flex; align-items: center; border: 1px solid #eee; border-radius: 8px; overflow: hidden; background: #fafafa;">
+                                <a href="{{ url_for('cart.decrease', cart_id=item.cart_id) }}" style="padding: 5px 12px; text-decoration: none; color: #000; font-size: 18px;">−</a>
+                                <span style="padding: 5px 15px; font-weight: 500;">{{ item.quantity }}</span>
+                                <a href="{{ url_for('cart.increase', cart_id=item.cart_id) }}" style="padding: 5px 12px; text-decoration: none; color: #000; font-size: 18px;">+</a>
+                            </div>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА: ИТОГ -->
+            <div style="position: sticky; top: 20px;">
+                <div style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                    <h2 style="margin-top: 0; font-size: 24px; display: flex; justify-content: space-between;">
+                        <span>Итого</span>
+                        <span>{{ total }} ₽</span>
+                    </h2>
+                    
+                    <a href="{{ url_for('cart.checkout') }}" class="button" style="display: block; text-align: center; background: #ff7636; color: #fff; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px;">Оформить заказ</a>
+                    <a href="{{ url_for('catalog.catalog') }}" style="display: block; text-align: center; color: #ff7636; margin-top: 15px; text-decoration: none;">Продолжить покупки</a>
+                </div>
+            </div>
+
+        </div>
+
+    {% else %}
+        <!-- Пустая корзина -->
+        <div class="empty-state" style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 12px;">
+            <h2>Пока здесь пусто</h2>
+            <p style="color: #888; margin-bottom: 20px;">Добавьте товары из каталога, чтобы перейти к оформлению заказа.</p>
+            <a class="button" href="{{ url_for('catalog.catalog') }}">Перейти в каталог</a>
+        </div>
+    {% endif %}
+</section>
 {% endblock %}
