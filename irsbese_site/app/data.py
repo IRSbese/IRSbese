@@ -124,5 +124,25 @@ def get_product(product_id):
         connection.close()
 
 
+def search_products(query_text):
+    """Ищет товары по названию или категории через базу данных."""
+    connection = get_connection()
+    try:
+        if not query_text:
+            # Если поиск пустой, возвращаем все товары
+            rows = connection.execute(
+                "SELECT id, name, category, price, description, image FROM products ORDER BY id"
+            ).fetchall()
+        else:
+            # SQL-запрос с поиском по названию ИЛИ категории
+            search_pattern = f"%{query_text}%"
+            rows = connection.execute(
+                "SELECT id, name, category, price, description, image FROM products WHERE name LIKE ? OR category LIKE ? ORDER BY id",
+                (search_pattern, search_pattern)
+            ).fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        connection.close()
+
+
 initialize_db()
-products = get_products()
