@@ -47,14 +47,21 @@ def update_cart():
                 quantity = int(value)
             except ValueError:
                 quantity = 0
+            
             product = get_db().execute(
                 "SELECT stock FROM products WHERE id=? AND active=1 AND moderation_status='approved' AND is_adult=0", (product_id,)
             ).fetchone()
+            
+            # Если товара нет на складе или остаток 0 — удаляем из корзины
+            if not product or product['stock'] < 1:
+                continue
+                
             if quantity < 1:
                 invalid_quantity = True
                 continue
-            if product and product['stock'] > 0:
-                updated[str(product_id)] = min(quantity, product['stock'], 99)
+                
+            # Ограничиваем количество реальным остатком
+            updated[str(product_id)] = min(quantity, product['stock'])
     if invalid_quantity:
         flash('Количество товара должно быть не меньше 1. Корзина не изменена.', 'error')
         return redirect(url_for('cart.cart'))
@@ -73,6 +80,19 @@ def remove_from_cart(product_id):
     if session.get('user_id'):
         persist_cart(session['user_id'])
     flash('Товар удалён из корзины.', 'info')
+    return redirect(url_for('cart.cart'))
+
+
+@cart_bp.route('/cart/clear', methods=['POST'])
+def clear_cart():
+    session['cart'] = {}
+    session.modified = True
+    if session.get('user_id'):
+        # Очищаем и в базе, и в сессии
+        db = get_db()
+        db.execute('DELETE FROM cart_items WHERE user_id=?', (session['user_id'],))
+        db.commit()
+    flash('Корзина очищена.', 'info')
     return redirect(url_for('cart.cart'))
 
 
