@@ -82,23 +82,35 @@ def edit_product(product_id):
     product = db.execute('SELECT * FROM products WHERE id=? AND seller_id=?', (product_id, session['user_id'])).fetchone()
     if not product:
         abort(404)
+        
     if request.method == 'POST':
         name = request.form.get('name', '').strip()[:120]
         category = request.form.get('category', '').strip()[:60]
         description = request.form.get('description', '').strip()[:1500]
+        
+        # 1. СЕРВЕРНАЯ ПРОВЕРКА НА 18+ (включая скрытые маркеры)
+        is_adult = is_adult_product(name, category, description, request.form.get('is_adult') == '1')
+        if is_adult:
+            flash('Размещение товаров категории 18+ запрещено правилами IRSbese.', 'error')
+            return render_template('pages/seller/edit_product.html', product=product, form_errors={'adult': 'Товары 18+ запрещены.'})
+            
         try:
             price = round(float(request.form.get('price', '0')), 2)
             stock = int(request.form.get('stock', '0'))
         except ValueError:
             price, stock = -1, -1
+            
         if len(name) < 2 or not category or not description or not math.isfinite(price) or price <= 0 or not 0 <= stock <= 10000:
             flash('Проверьте поля товара.', 'error')
-        else:
-            db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=? WHERE id=? AND seller_id=?',
-                (name, category, description, price, stock, product_id, session['user_id']))
-            db.commit()
-            flash('Товар обновлён.', 'success')
-            return redirect(url_for('seller.seller'))
+            return render_template('pages/seller/edit_product.html', product=product, form_errors={'product': 'Название, категория, описание, цена или остаток заполнены неверно.'})
+            
+        # 2. ОБНОВЛЕНИЕ В БАЗЕ (is_adult всегда 0, так как 18+ запрещены)
+        db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=?,is_adult=0 WHERE id=? AND seller_id=?',
+            (name, category, description, price, stock, product_id, session['user_id']))
+        db.commit()
+        flash('Товар обновлён.', 'success')
+        return redirect(url_for('seller.seller'))
+        
     return render_template('pages/seller/edit_product.html', product=product)
 
 
