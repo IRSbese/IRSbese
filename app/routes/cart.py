@@ -83,6 +83,47 @@ def remove_from_cart(product_id):
     return redirect(url_for('cart.cart'))
 
 
+@cart_bp.route('/cart/increase/<int:product_id>', methods=['POST'])
+def increase_cart(product_id):
+    cart = session.get('cart', {})
+    key = str(product_id)
+    product = get_db().execute("SELECT stock FROM products WHERE id=? AND active=1", (product_id,)).fetchone()
+    
+    if product and product['stock'] > 0:
+        try:
+            old_qty = int(cart.get(key, 0))
+        except (TypeError, ValueError):
+            old_qty = 0
+        # Увеличиваем на 1, но не больше остатка и не больше 99
+        cart[key] = min(old_qty + 1, product['stock'], 99)
+        session['cart'] = cart
+        session.modified = True
+        if session.get('user_id'):
+            persist_cart(session['user_id'])
+    return redirect(url_for('cart.cart'))
+
+
+@cart_bp.route('/cart/decrease/<int:product_id>', methods=['POST'])
+def decrease_cart(product_id):
+    cart = session.get('cart', {})
+    key = str(product_id)
+    try:
+        old_qty = int(cart.get(key, 0))
+    except (TypeError, ValueError):
+        old_qty = 0
+        
+    if old_qty > 1:
+        cart[key] = old_qty - 1
+    else:
+        cart.pop(key, None) # Если было 1, удаляем товар
+        
+    session['cart'] = cart
+    session.modified = True
+    if session.get('user_id'):
+        persist_cart(session['user_id'])
+    return redirect(url_for('cart.cart'))
+
+
 @cart_bp.route('/cart/clear', methods=['POST'])
 def clear_cart():
     session['cart'] = {}
