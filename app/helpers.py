@@ -101,16 +101,18 @@ def cart_rows():
     ).fetchall()
     rows, total, fixed_cart = [], 0, {}
     for product in products:
-        quantity = min(cart.get(str(product['id']), 0), 99)
+        # Ограничиваем количество остатком на складе (и максимум 99)
+        raw_qty = cart.get(str(product['id']), 0)
+        if product['stock'] > 0:
+            quantity = min(raw_qty, product['stock'], 99)
+        else:
+            quantity = 0 # Если на складе 0, товар в корзине не показываем
+
         if quantity <= 0:
             continue
-        line_total = round(float(product['price']) * quantity, 2) if product['stock'] > 0 else 0
+            
+        line_total = round(float(product['price']) * quantity, 2)
         rows.append({'product': product, 'quantity': quantity, 'line_total': line_total})
         fixed_cart[str(product['id'])] = quantity
         total += line_total
-    if fixed_cart != cart:
-        session['cart'] = fixed_cart
-        session.modified = True
-        if session.get('user_id'):
-            persist_cart(session['user_id'])
     return rows, round(total, 2)
