@@ -18,7 +18,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SECURE = os.getenv('COOKIE_SECURE', '0') == '1'
     PERMANENT_SESSION_LIFETIME = 60 * 60 * 24 * 14
-    DEMO_MODE = os.getenv('DEMO_MODE', '1') == '1'
+    DEMO_MODE = os.getenv('DEMO_MODE', '0') == '1'
     PAYMENTS_ENABLED = os.getenv('PAYMENTS_ENABLED', '0') == '1'
     YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID', '')
     YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY', '')
