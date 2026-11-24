@@ -1,0 +1,21 @@
+[Unit]
+Description=IRSbese Flask Marketplace
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/irsbese
+EnvironmentFile=/var/www/irsbese/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/var/www/irsbese/venv/bin/gunicorn --workers 3 --timeout 60 --max-requests 1000 --max-requests-jitter 100 --bind 127.0.0.1:8000 --access-logfile - --error-logfile - wsgi:app
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/irsbese/instance /var/www/irsbese/app/static/uploads
+
+[Install]
+WantedBy=multi-user.target

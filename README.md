@@ -1,3 +1,131 @@
-# IRSbese
-Задачи
-https://docs.google.com/spreadsheets/d/1KXbwwaqnktWu7m7tEZME89IAMIEZ3o1V/edit?usp=drivesdk&ouid=106249211057458934211&rtpof=true&sd=true
+# IRSbese — маркетплейс на Python + Flask
+
+Учебный проект интернет-магазина/маркетплейса. В репозитории собраны приложение, тесты, документация, UI-макеты, материалы защиты и релизные инструкции. Структура корня очищена: исходные и итоговые таблицы находятся в `project_management/`, презентация и демонстрация — в `artifacts/`, макеты — в `design/`.
+
+## 1. Возможности
+
+### Покупатель
+- Регистрация по электронной почте или телефону; вход по любому из этих идентификаторов.
+- Профиль с редактированием имени и телефона.
+- Восстановление пароля одноразовой ссылкой (требует SMTP).
+- Каталог, поиск, категория, сортировка и карточка товара.
+- Корзина с сохранением в SQLite для вошедшего пользователя.
+- Оформление заказа с контактами и выбором «Курьер» / «Самовывоз».
+- История собственных заказов и статусы.
+
+### Продавец
+- Регистрация с названием компании и ИНН (10 или 12 цифр).
+- Создание товара с загрузкой JPG/PNG/WEBP до 5 МБ; изображение преобразуется в WebP.
+- Редактирование и скрытие/показ собственных товаров.
+- Публикация товаров 18+ запрещена.
+
+### Каталог и рекомендации
+- Поиск по названию, описанию и категории.
+- Рекомендации по истории просмотров и покупок.
+- Блоки похожих и сопутствующих товаров, популярное и новинки.
+
+### Заказ и оплата
+- Сервер повторно проверяет наличие и цену из БД; заказ и позиции сохраняются транзакционно.
+- ЮKassa интегрирована через API-адаптер с idempotence key, проверкой webhook, суммы, валюты и metadata.
+- Оплата отключена по умолчанию. Для включения нужны тестовый магазин и тестовые ключи; реальные платежи в учебном MVP не включать.
+- IRSbese не принимает и не хранит данные банковских карт.
+
+## 2. Структура проекта
+
+```text
+irsbese_final/
+├── app/                    # Flask-приложение, маршруты, шаблоны, CSS/JS и изображения
+├── tests/                  # Автоматические тесты unittest
+├── docs/                   # Требования, истории, QA, безопасность, релиз и планы
+├── design/mockups/         # Статические HTML-макеты экранов
+├── project_management/     # Исходная и актуальная таблицы задач
+├── artifacts/
+│   ├── presentation/       # PPTX и текст выступления
+│   ├── demo/               # Сценарий демонстрации
+│   ├── qa/                 # Скрипт нагрузочного smoke-test и результаты/скриншоты
+│   └── release/            # Материалы для Pull Request
+├── deploy/                 # systemd, Nginx, deploy и backup scripts
+├── run.py
+├── wsgi.py
+├── config.py
+├── requirements.txt
+└── .env.example
+```
+
+## 3. Установка и запуск
+
+Требуется Python 3.10+.
+
+```bash
+python -m venv venv
+```
+
+Windows PowerShell:
+```powershell
+venv\Scripts\activate
+pip install -r requirements.txt
+$env:SECRET_KEY = "длинная-случайная-строка"
+python run.py
+```
+
+Linux/macOS:
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+python run.py
+```
+
+Откройте `http://127.0.0.1:5000`. SQLite-база создаётся автоматически в `instance/irsbese.sqlite3`.
+
+## 4. Настройки
+
+Скопируйте `.env.example` в `.env` и заполните значения. `.env` не добавлять в Git.
+
+Основные переменные:
+- `SECRET_KEY` — уникальный случайный ключ.
+- `DATABASE_PATH` — путь к SQLite.
+- `UPLOAD_FOLDER` — папка изображений.
+- `DEMO_MODE=0` — обязательно для production.
+- `COOKIE_SECURE=1` — после настройки HTTPS.
+- `PAYMENTS_ENABLED=0` — оставить выключенным до получения тестовых ключей.
+- `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY` — только тестовые ключи для учебной проверки.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` — настройки отправки восстановления пароля.
+
+## 5. Тестирование
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Нагрузочный smoke-test после запуска сервера:
+```bash
+python artifacts/qa/load_test.py http://127.0.0.1:5000 10 100
+```
+
+Это базовый smoke-test, не сертификация максимальной нагрузки. Полный тест-план — `docs/TEST_PLAN.md`; тест-кейсы — `docs/TEST_CASES.md`.
+
+## 6. Деплой
+
+Подготовлены `deploy/irsbese.service`, `deploy/nginx-irsbese.conf`, `deploy/deploy_ubuntu.sh` и `deploy/backup.sh`. Скрипт рассчитан на Ubuntu с правами root. Перед запуском проверьте домен, DNS, firewall, TLS-сертификат и `.env`. Реальный сервер этим архивом не изменяется.
+
+## 7. Документация и защита
+
+- `docs/REQUIREMENTS.md` — требования и ограничения MVP.
+- `docs/USER_STORIES.md` — истории и сценарии.
+- `docs/INTERVIEW_PROTOCOL.md` — протокол и открытые вопросы.
+- `docs/MVP_BACKLOG.md` — приоритеты.
+- `docs/ROLE_ACCESS_MATRIX.md` — роли и права.
+- `docs/ACCEPTANCE_CRITERIA.md` — критерии приёмки.
+- `docs/RISK_REGISTER.md` — риски.
+- `docs/PROJECT_PLAN.md`, `docs/SPRINT_PLAN.md`, `docs/BUDGET_ESTIMATE.md` — планирование.
+- `docs/TEST_EXECUTION.md` — честный статус проверок.
+- `docs/PR_CHECKLIST.md` — подготовка Pull Request.
+- `artifacts/presentation/IRSbese_защита.pptx` — презентация.
+- `artifacts/presentation/Текст_выступления.md` — текст выступления.
+- `artifacts/demo/` — сценарий демонстрации.
+- `design/mockups/` — статические макеты, не скриншоты работающего приложения.
+
+## 8. Ограничения перед реальным запуском
+
+В текущей рабочей среде не удалось установить Flask/Werkzeug из-за отсутствия доступа к PyPI, поэтому полноценный запуск Flask и тестов не подтверждён. Python compileall и статические проверки проходят. Для завершения релиза нужны: запуск тестов в окружении с зависимостями, проверка браузера на реальных устройствах, тестовые ключи ЮKassa, нагрузочный прогон на стенде, фактический Pull Request, запись демо и отдельный согласованный деплой.
