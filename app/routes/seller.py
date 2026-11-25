@@ -49,35 +49,28 @@ def add_product():
         name = request.form.get('name', '').strip()[:120]
         category = request.form.get('category', '').strip()[:60]
         description = request.form.get('description', '').strip()[:1500]
-        
-        is_adult_flag = 1 if is_adult_product(name, category, description, request.form.get('is_adult') == '1') else 0
-        
+        is_adult = is_adult_product(name, category, description, request.form.get('is_adult') == '1')
         try:
             price = round(float(request.form.get('price', '0')), 2)
             stock = int(request.form.get('stock', '1'))
         except ValueError:
             price, stock = -1, 0
-            
+        if is_adult:
+            flash('Размещение товаров категории 18+ запрещено правилами IRSbese.', 'error')
+            return render_template('pages/seller/add_product.html', form_errors={'adult': 'Товары 18+ запрещены.'})
         if len(name) < 2 or not category or not description or not math.isfinite(price) or price <= 0 or stock < 0 or stock > 10000:
             flash('Проверьте название, категорию, описание, цену и остаток.', 'error')
             return render_template('pages/seller/add_product.html', form_errors={'product': 'Название, категория, описание, цена или остаток заполнены неверно.'})
-        
         try:
             image_path = save_product_image(request.files.get('image'))
         except ValueError as error:
             flash(str(error), 'error')
             return render_template('pages/seller/add_product.html', form_errors={'image': str(error)})
-            
         db = get_db()
         db.execute('INSERT INTO products(seller_id,name,category,price,description,image,stock,is_adult,moderation_status) VALUES(?,?,?,?,?,?,?,?,?)',
-            (session['user_id'], name, category, price, description, image_path, stock, is_adult_flag, 'approved'))
+            (session['user_id'], name, category, price, description, image_path, stock, 0, 'approved'))
         db.commit()
-        
-        if is_adult_flag:
-            flash('Товар опубликован, но помечен как 18+ и скрыт из общего каталога.', 'success')
-        else:
-            flash('Товар опубликован в каталоге.', 'success')
-            
+        flash('Товар опубликован в каталоге.', 'success')
         return redirect(url_for('seller.seller'))
     return render_template('pages/seller/add_product.html', form_errors={})
 
@@ -89,35 +82,23 @@ def edit_product(product_id):
     product = db.execute('SELECT * FROM products WHERE id=? AND seller_id=?', (product_id, session['user_id'])).fetchone()
     if not product:
         abort(404)
-        
     if request.method == 'POST':
         name = request.form.get('name', '').strip()[:120]
         category = request.form.get('category', '').strip()[:60]
         description = request.form.get('description', '').strip()[:1500]
-
-        is_adult_flag = 1 if is_adult_product(name, category, description, request.form.get('is_adult') == '1') else 0
-            
         try:
             price = round(float(request.form.get('price', '0')), 2)
             stock = int(request.form.get('stock', '0'))
         except ValueError:
             price, stock = -1, -1
-            
         if len(name) < 2 or not category or not description or not math.isfinite(price) or price <= 0 or not 0 <= stock <= 10000:
             flash('Проверьте поля товара.', 'error')
-            return render_template('pages/seller/edit_product.html', product=product, form_errors={'product': 'Название, категория, описание, цена или остаток заполнены неверно.'})
-            
-        db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=?,is_adult=? WHERE id=? AND seller_id=?',
-            (name, category, description, price, stock, is_adult_flag, product_id, session['user_id']))
-        db.commit()
-        
-        if is_adult_flag:
-            flash('Товар обновлён и помечен как 18+. Он скрыт из общего каталога.', 'success')
         else:
+            db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=? WHERE id=? AND seller_id=?',
+                (name, category, description, price, stock, product_id, session['user_id']))
+            db.commit()
             flash('Товар обновлён.', 'success')
-            
-        return redirect(url_for('seller.seller'))
-        
+            return redirect(url_for('seller.seller'))
     return render_template('pages/seller/edit_product.html', product=product)
 
 
@@ -131,4 +112,20 @@ def toggle_product(product_id):
     db.execute('UPDATE products SET active=? WHERE id=? AND seller_id=?', (0 if product['active'] else 1, product_id, session['user_id']))
     db.commit()
     flash('Статус товара изменён.', 'success')
+    return redirect(url_for('seller.seller'))
+
+
+@seller_bp.route('/seller/product/<int:product_id>/delete', methods=['POST'])
+@seller_required
+def delete_product(product_id):
+    db = get_db()
+    product = db.execute('SELECT id FROM products WHERE id=? AND seller_id=?',
+                         (product_id, session['user_id'])).fetchone()
+    if not product:
+        abort(404)
+
+    db.execute('DELETE FROM products WHERE id=? AND seller_id=?', (product_id, session['user_id']))
+    db.commit()
+
+    flash('Товар удален из вашей витрины.', 'success')
     return redirect(url_for('seller.seller'))
