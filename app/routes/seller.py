@@ -49,28 +49,35 @@ def add_product():
         name = request.form.get('name', '').strip()[:120]
         category = request.form.get('category', '').strip()[:60]
         description = request.form.get('description', '').strip()[:1500]
-        is_adult = is_adult_product(name, category, description, request.form.get('is_adult') == '1')
+        
+        is_adult_flag = 1 if is_adult_product(name, category, description, request.form.get('is_adult') == '1') else 0
+        
         try:
             price = round(float(request.form.get('price', '0')), 2)
             stock = int(request.form.get('stock', '1'))
         except ValueError:
             price, stock = -1, 0
-        if is_adult:
-            flash('Размещение товаров категории 18+ запрещено правилами IRSbese.', 'error')
-            return render_template('pages/seller/add_product.html', form_errors={'adult': 'Товары 18+ запрещены.'})
+            
         if len(name) < 2 or not category or not description or not math.isfinite(price) or price <= 0 or stock < 0 or stock > 10000:
             flash('Проверьте название, категорию, описание, цену и остаток.', 'error')
             return render_template('pages/seller/add_product.html', form_errors={'product': 'Название, категория, описание, цена или остаток заполнены неверно.'})
+        
         try:
             image_path = save_product_image(request.files.get('image'))
         except ValueError as error:
             flash(str(error), 'error')
             return render_template('pages/seller/add_product.html', form_errors={'image': str(error)})
+            
         db = get_db()
         db.execute('INSERT INTO products(seller_id,name,category,price,description,image,stock,is_adult,moderation_status) VALUES(?,?,?,?,?,?,?,?,?)',
-            (session['user_id'], name, category, price, description, image_path, stock, 0, 'approved'))
+            (session['user_id'], name, category, price, description, image_path, stock, is_adult_flag, 'approved'))
         db.commit()
-        flash('Товар опубликован в каталоге.', 'success')
+        
+        if is_adult_flag:
+            flash('Товар опубликован, но помечен как 18+ и скрыт из общего каталога.', 'success')
+        else:
+            flash('Товар опубликован в каталоге.', 'success')
+            
         return redirect(url_for('seller.seller'))
     return render_template('pages/seller/add_product.html', form_errors={})
 
@@ -87,12 +94,8 @@ def edit_product(product_id):
         name = request.form.get('name', '').strip()[:120]
         category = request.form.get('category', '').strip()[:60]
         description = request.form.get('description', '').strip()[:1500]
-        
-        # 1. СЕРВЕРНАЯ ПРОВЕРКА НА 18+ (включая скрытые маркеры)
-        is_adult = is_adult_product(name, category, description, request.form.get('is_adult') == '1')
-        if is_adult:
-            flash('Размещение товаров категории 18+ запрещено правилами IRSbese.', 'error')
-            return render_template('pages/seller/edit_product.html', product=product, form_errors={'adult': 'Товары 18+ запрещены.'})
+
+        is_adult_flag = 1 if is_adult_product(name, category, description, request.form.get('is_adult') == '1') else 0
             
         try:
             price = round(float(request.form.get('price', '0')), 2)
@@ -104,11 +107,15 @@ def edit_product(product_id):
             flash('Проверьте поля товара.', 'error')
             return render_template('pages/seller/edit_product.html', product=product, form_errors={'product': 'Название, категория, описание, цена или остаток заполнены неверно.'})
             
-        # 2. ОБНОВЛЕНИЕ В БАЗЕ (is_adult всегда 0, так как 18+ запрещены)
-        db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=?,is_adult=0 WHERE id=? AND seller_id=?',
-            (name, category, description, price, stock, product_id, session['user_id']))
+        db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=?,is_adult=? WHERE id=? AND seller_id=?',
+            (name, category, description, price, stock, is_adult_flag, product_id, session['user_id']))
         db.commit()
-        flash('Товар обновлён.', 'success')
+        
+        if is_adult_flag:
+            flash('Товар обновлён и помечен как 18+. Он скрыт из общего каталога.', 'success')
+        else:
+            flash('Товар обновлён.', 'success')
+            
         return redirect(url_for('seller.seller'))
         
     return render_template('pages/seller/edit_product.html', product=product)
