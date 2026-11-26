@@ -156,7 +156,7 @@ def init_db():
     db.executescript(SCHEMA)
     _migrate_columns(db)
     count = db.execute('SELECT COUNT(*) FROM products').fetchone()[0]
-    if count == 0 and current_app.config.get('DEMO_MODE', True):
+    if count == 0:
         db.executemany(
             'INSERT INTO products(name,category,price,description,image,stock) VALUES(?,?,?,?,?,?)',
             SEED

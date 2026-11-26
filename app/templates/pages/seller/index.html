@@ -1,1 +1,77 @@
-{% extends 'base.html' %}{% block title %}Кабинет продавца — IRSbese{% endblock %}{% block content %}<div class="page-head compact"><span class="eyebrow">IRSBESE / ПРОДАВЕЦ</span><h1>Твоя витрина.</h1><p>Управляй предложениями и добавляй новые товары.</p><a class="button primary" href="{{ url_for('seller.add_product') }}">＋ Добавить товар</a></div><section class="account-panel"><div class="section-heading"><h2>Мои товары</h2><span class="muted">{{ products|length }} шт.</span></div>{% if products %}<div class="product-grid">{% for product in products %}{% include 'partials/product_card.html' %}<div class="seller-actions"><span>{{ 'Активен' if product['active'] else 'Скрыт' }}</span><a href="{{ url_for('seller.edit_product',product_id=product['id']) }}">Изменить</a><form method="post" action="{{ url_for('seller.toggle_product',product_id=product['id']) }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="button secondary">{{ 'Скрыть' if product['active'] else 'Показать' }}</button></form></div>{% endfor %}</div>{% else %}<div class="empty-state small"><div class="empty-icon">＋</div><h2>Витрина пока пустая</h2><p>Добавь первый товар, чтобы он появился в каталоге.</p><a class="button primary" href="{{ url_for('seller.add_product') }}">Добавить товар</a></div>{% endif %}</section>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Кабинет продавца — IRSbese{% endblock %}
+{% block content %}
+<div class="page-head compact">
+    <span class="eyebrow">IRSBESE / ПРОДАВЕЦ</span>
+    <h1>Твоя витрина.</h1>
+    <p>Управляй предложениями и добавляй новые товары.</p>
+</div>
+
+<div class="seller-actions-top">
+    <a href="{{ url_for('seller.add_product') }}" class="button primary">+ Добавить товар</a>
+</div>
+
+<div class="seller-panel">
+    <div class="seller-panel-head">
+        <h2>Мои товары</h2>
+        <span class="muted">{{ products|length }} шт.</span>
+    </div>
+
+    {% if products %}
+        <div class="seller-product-list">
+            {% for product in products %}
+                <div class="seller-product-card">
+                    <div class="seller-product-image">
+                        {% if product['image'] %}
+                            <img src="{{ url_for('static', filename=product['image']) }}" alt="{{ product['name'] }}">
+                        {% else %}
+                            <div class="image-placeholder">✳</div>
+                        {% endif %}
+                        
+                        {% if product['is_adult'] %}
+                            <span class="badge badge-adult" style="background: #ff4d4d; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-top: 5px; display: inline-block;">18+ Скрыто</span>
+                        {% elif not product['active'] %}
+                            <span class="badge badge-hidden" style="background: #999; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-top: 5px; display: inline-block;">Скрыто</span>
+                        {% else %}
+                            <span class="badge badge-active" style="background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-top: 5px; display: inline-block;">Активен</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="seller-product-info">
+                        <span class="eyebrow">{{ product['category'] }}</span>
+                        <h3>{{ product['name'] }}</h3>
+                        <p class="price">{{ '%.0f'|format(product['price']) }} ₽</p>
+                        <p class="muted small">Остаток: {{ product['stock'] }} шт.</p>
+                    </div>
+
+                    <div class="seller-product-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <span class="status-text" style="color: #888; margin-right: 5px;">
+                            {% if product['active'] %}Активен{% else %}Скрыт{% endif %}
+                        </span>
+                        
+                        <a href="{{ url_for('seller.edit_product', product_id=product['id']) }}" class="button secondary" style="padding: 5px 15px;">Изменить</a>
+                        
+                        <!-- Кнопка Скрыть/Показать -->
+                        <form method="post" action="{{ url_for('seller.toggle_product', product_id=product['id']) }}" style="margin: 0;">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="button secondary" style="padding: 5px 15px;">
+                                {% if product['active'] %}Скрыть{% else %}Показать{% endif %}
+                            </button>
+                        </form>
+
+                        <form method="post" action="{{ url_for('seller.delete_product', product_id=product['id']) }}" style="margin: 0;" onsubmit="return confirm('Вы уверены, что хотите навсегда удалить товар «{{ product['name'] }}»?');">
+                            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+                            <button type="submit" class="button secondary" style="padding: 5px 15px; color: #ff4d4d; border-color: #ff4d4d;">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>У вас пока нет товаров. Добавьте первый товар, чтобы начать продавать.</p>
+            <a href="{{ url_for('seller.add_product') }}" class="button primary">Добавить товар</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

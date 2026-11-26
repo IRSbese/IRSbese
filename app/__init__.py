@@ -12,8 +12,29 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
-    if not app.config.get('TESTING') and not app.config.get('SECRET_KEY'):
-        raise RuntimeError('Задайте уникальный SECRET_KEY через переменную окружения перед запуском')
+    if not app.config.get('TESTING'):
+        # 1. Проверка SECRET_KEY
+        secret = app.config.get('SECRET_KEY')
+        if not secret:
+            raise RuntimeError('Задайте уникальный SECRET_KEY через переменную окружения перед запуском')
+        if len(secret) < 32:
+            raise RuntimeError('SECRET_KEY слишком короткий. В production он должен быть не менее 32 символов.')
+        if secret in ['secret', 'dev', 'change-me', 'replace-this-key-before-deployment']:
+            raise RuntimeError('SECRET_KEY содержит значение по умолчанию. Сгенерируйте надежный ключ.')
+
+        # 2. Проверка DEMO_MODE
+        if app.config.get('ENVIRONMENT') == 'production' and app.config.get('DEMO_MODE'):
+            raise RuntimeError('DEMO_MODE включен. В production демо-режим должен быть отключен (DEMO_MODE=0).')
+
+        # 3. Проверка DEBUG
+        if app.config.get('ENVIRONMENT') == 'production' and app.config.get('DEBUG'):
+            raise RuntimeError('DEBUG включен. В production отладка должна быть отключена (FLASK_DEBUG=0).')
+
+        # 4. Проверка Cookie Secure
+        if app.config.get('ENVIRONMENT') == 'production' and not app.config.get('SESSION_COOKIE_SECURE'):
+            raise RuntimeError('SESSION_COOKIE_SECURE выключен. В production требуется HTTPS и COOKIE_SECURE=1.')
+
+    # Проверка оплаты (оставляем как было)
     if app.config.get('PAYMENTS_ENABLED') and not (
         app.config.get('YOOKASSA_SHOP_ID') and app.config.get('YOOKASSA_SECRET_KEY')
     ):

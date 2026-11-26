@@ -113,3 +113,19 @@ def toggle_product(product_id):
     db.commit()
     flash('Статус товара изменён.', 'success')
     return redirect(url_for('seller.seller'))
+
+
+@seller_bp.route('/seller/product/<int:product_id>/delete', methods=['POST'])
+@seller_required
+def delete_product(product_id):
+    db = get_db()
+    product = db.execute('SELECT id FROM products WHERE id=? AND seller_id=?',
+                         (product_id, session['user_id'])).fetchone()
+    if not product:
+        abort(404)
+
+    db.execute('DELETE FROM products WHERE id=? AND seller_id=?', (product_id, session['user_id']))
+    db.commit()
+
+    flash('Товар удален из вашей витрины.', 'success')
+    return redirect(url_for('seller.seller'))

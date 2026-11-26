@@ -47,14 +47,21 @@ def update_cart():
                 quantity = int(value)
             except ValueError:
                 quantity = 0
+            
             product = get_db().execute(
                 "SELECT stock FROM products WHERE id=? AND active=1 AND moderation_status='approved' AND is_adult=0", (product_id,)
             ).fetchone()
+            
+            # Если товара нет на складе или остаток 0 — удаляем из корзины
+            if not product or product['stock'] < 1:
+                continue
+                
             if quantity < 1:
                 invalid_quantity = True
                 continue
-            if product and product['stock'] > 0:
-                updated[str(product_id)] = min(quantity, product['stock'], 99)
+                
+            # Ограничиваем количество реальным остатком
+            updated[str(product_id)] = min(quantity, product['stock'])
     if invalid_quantity:
         flash('Количество товара должно быть не меньше 1. Корзина не изменена.', 'error')
         return redirect(url_for('cart.cart'))
@@ -73,6 +80,60 @@ def remove_from_cart(product_id):
     if session.get('user_id'):
         persist_cart(session['user_id'])
     flash('Товар удалён из корзины.', 'info')
+    return redirect(url_for('cart.cart'))
+
+
+@cart_bp.route('/cart/increase/<int:product_id>', methods=['POST'])
+def increase_cart(product_id):
+    cart = session.get('cart', {})
+    key = str(product_id)
+    product = get_db().execute("SELECT stock FROM products WHERE id=? AND active=1", (product_id,)).fetchone()
+    
+    if product and product['stock'] > 0:
+        try:
+            old_qty = int(cart.get(key, 0))
+        except (TypeError, ValueError):
+            old_qty = 0
+        # Увеличиваем на 1, но не больше остатка и не больше 99
+        cart[key] = min(old_qty + 1, product['stock'], 99)
+        session['cart'] = cart
+        session.modified = True
+        if session.get('user_id'):
+            persist_cart(session['user_id'])
+    return redirect(url_for('cart.cart'))
+
+
+@cart_bp.route('/cart/decrease/<int:product_id>', methods=['POST'])
+def decrease_cart(product_id):
+    cart = session.get('cart', {})
+    key = str(product_id)
+    try:
+        old_qty = int(cart.get(key, 0))
+    except (TypeError, ValueError):
+        old_qty = 0
+        
+    if old_qty > 1:
+        cart[key] = old_qty - 1
+    else:
+        cart.pop(key, None) # Если было 1, удаляем товар
+        
+    session['cart'] = cart
+    session.modified = True
+    if session.get('user_id'):
+        persist_cart(session['user_id'])
+    return redirect(url_for('cart.cart'))
+
+
+@cart_bp.route('/cart/clear', methods=['POST'])
+def clear_cart():
+    session['cart'] = {}
+    session.modified = True
+    if session.get('user_id'):
+        # Очищаем и в базе, и в сессии
+        db = get_db()
+        db.execute('DELETE FROM cart_items WHERE user_id=?', (session['user_id'],))
+        db.commit()
+    flash('Корзина очищена.', 'info')
     return redirect(url_for('cart.cart'))
 
 

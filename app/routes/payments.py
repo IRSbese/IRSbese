@@ -118,20 +118,47 @@ def payment_return():
 
 def _apply_payment_state(db, payment, order, provider_status):
     if provider_status == 'succeeded':
+        # 1. Проверяем, не отменён ли заказ. Если отменён — игнорируем оплату.
+        current_order = db.execute('SELECT status FROM orders WHERE id=?', (order['id'],)).fetchone()
+        if current_order and current_order['status'] == 'Отменён':
+            current_app.logger.warning(f'Попытка оплаты отмененного заказа {order["id"]} проигнорирована.')
+            return
+
+        # Обновляем статус платежа и заказа
         db.execute("UPDATE payments SET status='succeeded',updated_at=CURRENT_TIMESTAMP WHERE id=?", (payment['id'],))
+        # Обновляем статус только если он ещё не "Оплачен"
         db.execute("UPDATE orders SET status='Оплачен' WHERE id=? AND status<>'Оплачен'", (order['id'],))
-    elif provider_status == 'canceled' and order['status'] not in ('Отменён', 'Оплачен'):
+        db.commit()
+
+    elif provider_status == 'canceled':
+        # 2. Начинаем транзакцию для безопасного возврата остатков
         db.execute('BEGIN IMMEDIATE')
-        items = db.execute('SELECT product_id,quantity FROM order_items WHERE order_id=?', (order['id'],)).fetchall()
-        for item in items:
-            if item['product_id']:
-                db.execute('UPDATE products SET stock=stock+? WHERE id=?', (item['quantity'], item['product_id']))
-        db.execute("UPDATE payments SET status='canceled',updated_at=CURRENT_TIMESTAMP WHERE id=?", (payment['id'],))
-        db.execute("UPDATE orders SET status='Отменён' WHERE id=?", (order['id'],))
+        try:
+            # Снова получаем актуальный статус заказа ВНУТРИ транзакции (защита от гонок)
+            current_order = db.execute('SELECT status FROM orders WHERE id=?', (order['id'],)).fetchone()
+            
+            # Если заказ уже отменён или оплачен — ничего не делаем (возврат сработает только 1 раз)
+            if not current_order or current_order['status'] in ('Отменён', 'Оплачен'):
+                db.rollback()
+                return
+
+            # Возвращаем товары на склад
+            items = db.execute('SELECT product_id,quantity FROM order_items WHERE order_id=?', (order['id'],)).fetchall()
+            for item in items:
+                if item['product_id']:
+                    db.execute('UPDATE products SET stock=stock+? WHERE id=?', (item['quantity'], item['product_id']))
+            
+            # Меняем статусы
+            db.execute("UPDATE payments SET status='canceled',updated_at=CURRENT_TIMESTAMP WHERE id=?", (payment['id'],))
+            db.execute("UPDATE orders SET status='Отменён' WHERE id=?", (order['id'],))
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
     elif provider_status == 'pending':
         db.execute("UPDATE payments SET status='pending',updated_at=CURRENT_TIMESTAMP WHERE id=?", (payment['id'],))
-    db.commit()
-
+        db.commit()
 
 @payments_bp.route('/payments/yookassa/webhook', methods=['POST'])
 def yookassa_webhook():
