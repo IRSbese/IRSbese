@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Стать продавцом — IRSbese{% endblock %}
+{% block content %}
+<div class="page-head compact">
+    <span class="eyebrow">IRSBESE / ПРОДАВЦАМ</span>
+    <h1>Начни продавать на IRSbese.</h1>
+    <p>Размещай свои товары, управляй витриной и находи новых клиентов.</p>
+</div>
+
+<div style="background: #fff; padding: 40px; border-radius: 12px; border: 1px solid #eaeaea; text-align: center; max-width: 600px; margin: 0 auto;">
+    <h2>Как это работает?</h2>
+    <p style="color: #666; margin-bottom: 30px;">Зарегистрируйтесь как продавец, укажите данные компании и ИНН, после чего вы сможете добавлять товары.</p>
+    
+    <a href="{{ url_for('account.register') }}?role=seller" class="button primary" style="background: #ff7636; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+        Зарегистрироваться как продавец
+    </a>
+</div>
+{% endblock %}
