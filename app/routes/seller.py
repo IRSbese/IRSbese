@@ -10,6 +10,10 @@ from app.helpers import seller_required
 seller_bp = Blueprint('seller', __name__)
 ADULT_MARKERS = ('18+', '18 +', 'для взрослых', 'эрот', 'интим', 'секс-товар', 'секс товар')
 
+@seller_bp.route('/become-seller')
+def become_seller():
+    return render_template('pages/seller/become_seller.html')
+
 def is_adult_product(name, category, description, checked=False):
     text = ' '.join((name, category, description)).casefold()
     return checked or any(marker in text for marker in ADULT_MARKERS)
