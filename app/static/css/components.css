@@ -4,3 +4,15 @@
 @media(max-width:600px){.container{width:calc(100% - 32px)}.site-header{height:70px}.brand img{width:115px}.main-nav{display:none;position:absolute;top:69px;left:0;right:0;background:var(--paper);padding:18px 24px;border-bottom:1px solid var(--line);flex-direction:column;gap:18px;align-items:flex-start}.main-nav.open{display:flex}.nav-actions{gap:12px}.account-link{display:none}.menu-toggle{display:block}.hero{padding:45px 22px}.hero h1{font-size:62px}.hero-copy>p{font-size:13px}.hero-art{height:290px}.art-card{width:150px;height:180px;padding:16px}.art-card strong{font-size:21px}.art-orbit{width:230px;height:230px}.orbit-two{width:310px;height:310px}.art-spark{font-size:35px}.section{padding-top:42px}.section-heading{align-items:start}.section-heading h2{font-size:27px}.product-grid{gap:12px}.product-visual{height:165px}.product-info{padding:12px}.product-name{font-size:12px;min-height:34px}.product-bottom strong{font-size:14px}.add-button{width:30px;height:30px}.seller-banner{padding:35px 25px;min-height:0}.seller-banner h2{font-size:36px}.banner-mark{display:none}.catalog-tools{grid-template-columns:1fr}.catalog-tools .button{width:100%}.product-detail{grid-template-columns:1fr;gap:25px}.detail-visual{height:310px}.detail-copy h1{font-size:38px}.cart-row{gap:10px;padding:9px;flex-wrap:wrap}.cart-thumb{width:68px;height:68px}.cart-product{min-width:calc(100% - 90px)}.qty-label{margin-left:78px}.line-total{margin-left:auto}.form-row{grid-template-columns:1fr}.footer-inner{grid-template-columns:1fr}.footer-links{flex-wrap:wrap;gap:18px}.footer-inner small{grid-column:1}.page-head{padding-top:35px}.page-head h1{font-size:48px}.order-top{gap:8px;flex-wrap:wrap}.order-top>div{min-width:45%}.auth-card{padding:25px}}
 
 .field-error{display:block;color:#b42318;font-size:12px;margin:-8px 0 10px}.seller-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0}.seller-actions form{margin:0}
+.form-card label.checkbox-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.form-card label.checkbox-line input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
