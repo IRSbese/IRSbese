@@ -98,8 +98,16 @@ def edit_product(product_id):
         if len(name) < 2 or not category or not description or not math.isfinite(price) or price <= 0 or not 0 <= stock <= 10000:
             flash('Проверьте поля товара.', 'error')
         else:
-            db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=? WHERE id=? AND seller_id=?',
-                (name, category, description, price, stock, product_id, session['user_id']))
+            new_image_path = product['image']
+            file = request.files.get('image')
+            if file and file.filename:
+                try:
+                    new_image_path = save_product_image(file)
+                except ValueError as error:
+                    flash(str(error), 'error')
+                    return render_template('pages/seller/edit_product.html', product=product)
+            db.execute('UPDATE products SET name=?,category=?,description=?,price=?,stock=?,image=? WHERE id=? AND seller_id=?',
+                (name, category, description, price, stock, new_image_path, product_id, session['user_id']))
             db.commit()
             flash('Товар обновлён.', 'success')
             return redirect(url_for('seller.seller'))
